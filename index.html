@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nossa Carta em Código 💌</title>
+  <meta name="description" content="Uma carta romântica interativa em HTML, CSS e JavaScript, com efeito de digitação, galeria de fotos e animações." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0f0c29;         /* night-indigo */
+      --bg2:#302b63;        /* deep-purple */
+      --bg3:#24243e;        /* space-blue */
+      --rose:#ff5e8e;       /* rose */
+      --rose-2:#ff8bb0;     /* light rose */
+      --gold:#ffd166;       /* warm gold */
+      --card:#141229;       /* card dark */
+      --text:#f8f7fb;       /* ivory */
+      --muted:#cfcbe9;      /* soft */
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(255,94,142,.15), transparent 60%),
+                 radial-gradient(900px 500px at 120% 10%, rgba(255,209,102,.1), transparent 60%),
+                 linear-gradient(135deg,var(--bg),var(--bg2) 50%,var(--bg3));
+      color:var(--text);
+      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+
+    header{
+      position:relative;
+      padding:48px 20px 24px;
+      text-align:center;
+    }
+    .title{
+      font-family:'Playfair Display', serif;
+      font-size: clamp(28px, 4.2vw, 56px);
+      line-height:1.15;
+      margin:0 0 10px;
+      letter-spacing:.3px;
+    }
+    .subtitle{
+      font-size: clamp(14px, 2.2vw, 18px);
+      color:var(--muted);
+      margin: 0;
+    }
+
+    .wrap{ max-width: 1080px; margin: 0 auto; padding: 0 20px 64px; }
+
+    /* Card principal */
+    .card{
+      position:relative;
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 60%), var(--card);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: clamp(20px, 3.2vw, 36px);
+      overflow:hidden;
+      backdrop-filter: blur(6px);
+    }
+    .card:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: conic-gradient(from 180deg at 50% 50%, rgba(255,94,142,.25), rgba(255,209,102,.22), transparent 30%, transparent 70%, rgba(255,94,142,.25));
+      filter: blur(24px);
+      opacity:.35;
+      z-index:0;
+      pointer-events:none;
+    }
+    .card-inner{ position:relative; z-index:2; }
+
+    .code-header{
+      display:flex; align-items:center; gap:10px; margin-bottom:16px; opacity:.9;
+      font-size:14px; color:var(--muted);
+    }
+    .dot{width:12px; height:12px; border-radius:50%}
+    .dot.red{ background:#ff5f57 }
+    .dot.yellow{ background:#febc2e }
+    .dot.green{ background:#28c840 }
+
+    pre{
+      margin:0;
+      white-space:pre-wrap;
+      word-wrap:break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: clamp(12px, 2vw, 16px);
+      line-height: 1.8;
+      color:#f4f2ff;
+    }
+    .cursor{ display:inline-block; width:10px; background:#f4f2ff; animation: blink 1s steps(1) infinite; }
+    @keyframes blink{ 50%{ opacity:0 } }
+
+    .actions{ display:flex; flex-wrap:wrap; gap:12px; margin:18px 0 0 }
+    .btn{
+      appearance:none; border:1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      color:var(--text); border-radius: 14px; padding: 10px 16px; font-weight:600;
+      cursor:pointer; transition: transform .15s ease, border-color .2s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    }
+    .btn:hover{ transform: translateY(-2px); border-color: rgba(255,255,255,.35) }
+    .btn.primary{ background: linear-gradient(180deg, rgba(255,94,142,.35), rgba(255,94,142,.15)); border-color: rgba(255,94,142,.6) }
+    .btn.gold{ background: linear-gradient(180deg, rgba(255,209,102,.35), rgba(255,209,102,.15)); border-color: rgba(255,209,102,.55) }
+
+    /* Galeria */
+    .gallery{
+      margin-top: 32px;
+      display:grid; gap:12px;
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media(min-width:700px){ .gallery{ grid-template-columns: repeat(3, 1fr) } }
+    @media(min-width:1024px){ .gallery{ grid-template-columns: repeat(4, 1fr) } }
+    .photo{
+      position:relative; border-radius:18px; overflow:hidden;
+      border:1px solid rgba(255,255,255,.1);
+      aspect-ratio: 1/1; display:block;
+      transform: translateZ(0);
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      cursor: zoom-in;
+      background: rgba(255,255,255,.04);
+    }
+    .photo img{ width:100%; height:100%; object-fit:cover; display:block; filter:saturate(1.05) contrast(1.02) }
+    .photo .caption{
+      position:absolute; left:0; right:0; bottom:0; padding:10px 12px; font-size:12px; letter-spacing:.2px;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,.55));
+    }
+
+    /* Lightbox */
+    .lightbox{ position:fixed; inset:0; display:none; place-items:center; background: rgba(0,0,0,.75); z-index:99; backdrop-filter: blur(2px); }
+    .lightbox.open{ display:grid }
+    .lightbox-content{
+      position:relative; width:min(92vw, 980px); border-radius: 18px; overflow:hidden; background:#0f0f18;
+      border:1px solid rgba(255,255,255,.12); box-shadow: var(--shadow);
+      max-height: 86vh; display:flex; flex-direction:column;
+    }
+    .lightbox-content img{ width:100%; height:auto; max-height:70vh; object-fit:contain; background:#000 }
+    .lightbox-caption{ padding:12px 14px; color:var(--muted); font-size:14px; }
+    .lightbox-close, .lightbox-prev, .lightbox-next{
+      position:absolute; top:10px; background: rgba(255,255,255,.08); backdrop-filter: blur(6px); border:1px solid rgba(255,255,255,.18);
+      color:#fff; padding:9px 12px; border-radius:12px; cursor:pointer; font-weight:600;
+    }
+    .lightbox-close{ right:10px }
+    .lightbox-prev{ left:10px; top:50%; transform: translateY(-50%) }
+    .lightbox-next{ right:10px; top:50%; transform: translateY(-50%) }
+
+    /* Corações flutuantes */
+    .hearts{ position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden }
+    .heart{ position:absolute; width:14px; height:14px; background:radial-gradient(circle at 30% 30%, #fff, var(--rose)); transform: rotate(45deg); opacity:.55; animation: float 8s linear infinite; filter: drop-shadow(0 8px 12px rgba(255,94,142,.35)); }
+    .heart:before, .heart:after{ content:""; position:absolute; width:14px; height:14px; background:radial-gradient(circle at 30% 30%, #fff, var(--rose)); border-radius:50% }
+    .heart:before{ left:-7px }
+    .heart:after{ top:-7px }
+    @keyframes float{ 0%{ transform: translateY(0) rotate(45deg); opacity:.0 } 10%{opacity:.6} 100%{ transform: translateY(-110vh) rotate(45deg); opacity:0 } }
+
+    footer{ text-align:center; padding: 28px 20px; color: var(--muted) }
+
+    /* Impressão */
+    @media print{
+      body{ background:#fff; color:#111 }
+      header, .actions, .gallery, .hearts, .lightbox{ display:none !important }
+      .card{ box-shadow:none; border: none; }
+      .card:before{ display:none }
+      .card pre{ color:#111 }
+    }
+  </style>
+</head>
+<body>
+  <!-- Partículas de corações -->
+  <div class="hearts" aria-hidden="true" id="hearts-container"></div>
+
+  <header>
+    <h1 class="title">Nossa Carta em Código</h1>
+    <p class="subtitle">Para: <span id="destino">Minha Noiva</span> • De: <span id="autor">Seu Amor</span> • <span id="data"></span></p>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <div class="card-inner">
+        <div class="code-header" aria-hidden="true">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+          <span>carta.js</span>
+        </div>
+
+        <pre id="code"><code></code><span class="cursor" aria-hidden="true"> </span></pre>
+
+        <div class="actions">
+          <button class="btn primary" id="btnStart">▶️ Revelar carta</button>
+          <button class="btn" id="btnReset">🔁 Reiniciar</button>
+          <button class="btn gold" id="btnPrint">🖨️ Baixar em PDF</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- GALERIA DE FOTOS -->
+    <section class="gallery" id="gallery" aria-label="Nossa galeria de momentos">
+      <!-- Troque os caminhos das imagens abaixo pelas suas fotos -->
+      <a class="photo" href="Nossa primeira foto..jpg" data-index="0" data-caption="Nosso primeiro encontro">
+        <img src="Nossa primeira foto..jpg" alt="Foto 1 - primeiro encontro">
+        <span class="caption">Nossa primeira foto</span>
+      </a>
+      <a class="photo" href="Meu sorrizo fav.jpg" data-index="1" data-caption="Sorriso que me ganhou">
+        <img src="Meu sorrizo fav.jpg" alt="Foto 2 - sorriso">
+        <span class="caption">Sorriso que me ganhou</span>
+      </a>
+      <a class="photo" href="Vigilia.jpg" data-index="2" data-caption="Nosso rolê favorito">
+        <img src="Vigilia.jpg" alt="Foto 3 - rolê favorito">
+        <span class="caption">Nosso rolê favorito</span>
+      </a>
+      <a class="photo" href="Eu e voce sempre.jpg" data-index="3" data-caption="Planos para o futuro">
+        <img src="Eu e voce sempre.jpg" alt="Foto 4 - futuro juntos">
+        <span class="caption">Nós dois, para sempre</span>
+      </a>
+      <a class="photo" href="Eu e voce.jpg" data-index="4" data-caption="Nós dois, para sempre">
+        <img src="Eu e voce.jpg" alt="Foto 5 - nós dois">
+        <span class="caption">Nós dois, para sempre</span>
+      </a>
+      <a class="photo" href="Nossas loucuras 1.jpg" data-index="5" data-caption="O abraço que é casa">
+        <img src="Nossas loucuras 1.jpg" alt="Foto 6 - abraço">
+        <span class="caption">Nossas loucuras</span>
+      </a>
+      <a class="photo" href="Nossas loucuras 2 .jpg" data-index="6" data-caption="Aleatoriedades que amamos">
+        <img src="Nossas loucuras 2 .jpg" alt="Foto 7 - aleatório">
+        <span class="caption">Nossas loucuras</span>
+      </a>
+      <a class="photo" href="#" data-index="7" data-caption="Só nós sabemos">
+        <img src="So eu tenho..jpg" alt="Foto 8 - segredinhos">
+        <span class="caption">Uma foto que só eu tenho rs</span>
+      </a>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Pré-visualização de foto">
+    <div class="lightbox-content">
+      <button class="lightbox-close" id="lbClose" aria-label="Fechar">✕</button>
+      <button class="lightbox-prev" id="lbPrev" aria-label="Anterior">⟨</button>
+      <img id="lbImage" alt="Foto ampliada" />
+      <button class="lightbox-next" id="lbNext" aria-label="Próxima">⟩</button>
+      <div class="lightbox-caption" id="lbCaption"></div>
+    </div>
+  </div>
+
+  <footer>
+    Feito com Todo o meu Amor por ❤️
+  </footer>
+
+  <script>
+    // ======= CONFIGURAÇÕES RÁPIDAS =======
+    const NOME_NOIVA = "SanmyLOVE"; // 👉 troque pelo nome dela
+    const NOME_AUTOR = "Seu Amor Erickão";    // 👉 seu nome aqui
+
+    // Linhas da "carta em código" (sinta-se à vontade para editar)
+    const LINES = [
+      "// Carta em código para o amor da minha vida",
+      "const eu = { coracao: 'completo', futuro: 'ao seu lado' }",
+      "const voce = { sorriso: 'meu bug favorito', abraco: 'meu lar' }",
+      "function promessas() {",
+      "  return [",
+      "    'te respeitar todos os dias',",
+      "    'te ouvir com paciência',",
+      "    'te apoiar nos sonhos',",
+      "    'te irritar rsrs',",
+      "    'te amar todos os dias',",
+      "    'te elogiar',",
+      "    'ser o melhor pra você',",
+      "    'Sonhar com você todos os dias',",
+      "  ]",
+      "}",
+      "",
+      "const amor = () => {",
+      "  console.log('Desde que você chegou, tudo faz sentido.');",
+      "  console.log('Você é a constante que dá estabilidade ao meu sistema.');",
+      "  console.log('Se a vida lançar exceções, eu trato com carinho e Aquelas masagens');",
+      "}",
+      "",
+      "amor()",
+      "promessas().forEach(p => console.log('Prometo: ' + p))",
+      "",
+      "// P.S.: hoje e sempre, eu te amo. 💍❤️",
+    ];
+
+    // ======= Inicialização de cabeçalho =======
+    const $data = document.getElementById('data');
+    const $destino = document.getElementById('destino');
+    const $autor = document.getElementById('autor');
+    const now = new Date();
+    const dataFormatada = now.toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+    $data.textContent = dataFormatada;
+    $destino.textContent = NOME_NOIVA;
+    $autor.textContent = NOME_AUTOR;
+
+    // ======= Efeito de digitação =======
+    const $code = document.querySelector('#code code');
+    const $cursor = document.querySelector('.cursor');
+    let typing = false, idxLine = 0, idxChar = 0; // estados de digitação
+
+    function typeNext(){
+      if(!typing) return;
+      if(idxLine >= LINES.length){ $cursor.remove(); return; }
+      const line = LINES[idxLine];
+      if(idxChar <= line.length){
+        $code.textContent += line.slice(idxChar, idxChar+1);
+        idxChar++;
+        setTimeout(typeNext, 14 + Math.random()*38);
+      } else { // quebra de linha e próxima
+        $code.textContent += '\n';
+        idxLine++; idxChar = 0;
+        setTimeout(typeNext, 170);
+      }
+    }
+
+    function startTyping(){
+      if(typing) return; // evita duplo start
+      typing = true;
+      typeNext();
+    }
+    function resetTyping(){
+      typing = false; idxLine = 0; idxChar = 0; $code.textContent = '';
+      document.body.scrollTo ? document.body.scrollTo({top:0, behavior:'smooth'}) : window.scrollTo(0,0);
+      setTimeout(()=>{ typing = true; typeNext(); }, 220);
+    }
+
+    document.getElementById('btnStart').addEventListener('click', startTyping);
+    document.getElementById('btnReset').addEventListener('click', resetTyping);
+    document.getElementById('btnPrint').addEventListener('click', () => window.print());
+
+    // ======= Galeria & Lightbox =======
+    const photos = Array.from(document.querySelectorAll('.photo'));
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lbImage');
+    const lbCap = document.getElementById('lbCaption');
+    const lbPrev = document.getElementById('lbPrev');
+    const lbNext = document.getElementById('lbNext');
+    const lbClose = document.getElementById('lbClose');
+    let current = 0;
+
+    function openLightbox(index){
+      current = index;
+      const a = photos[current];
+      const img = a.querySelector('img');
+      lbImg.src = img.src;
+      lbCap.textContent = a.dataset.caption || img.alt || '';
+      lb.classList.add('open');
+      document.body.style.overflow='hidden';
+    }
+    function closeLightbox(){ lb.classList.remove('open'); document.body.style.overflow=''; }
+    function prev(){ openLightbox((current - 1 + photos.length) % photos.length); }
+    function next(){ openLightbox((current + 1) % photos.length); }
+
+    photos.forEach((a,i)=>{
+      a.addEventListener('click', e=>{ e.preventDefault(); openLightbox(i); });
+    });
+    lbClose.addEventListener('click', closeLightbox);
+    lbPrev.addEventListener('click', prev);
+    lbNext.addEventListener('click', next);
+    lb.addEventListener('click', (e)=>{ if(e.target === lb) closeLightbox(); });
+    window.addEventListener('keyup', (e)=>{
+      if(!lb.classList.contains('open')) return;
+      if(e.key==='Escape') closeLightbox();
+      if(e.key==='ArrowLeft') prev();
+      if(e.key==='ArrowRight') next();
+    });
+
+    // ======= Corações flutuantes =======
+    const hearts = document.getElementById('hearts-container');
+    function spawnHeart(){
+      const h = document.createElement('div');
+      h.className = 'heart';
+      const size = 10 + Math.random()*18;
+      h.style.width = h.style.height = size + 'px';
+      h.style.left = Math.random()*100 + 'vw';
+      h.style.bottom = '-20px';
+      h.style.opacity = (0.25 + Math.random()*0.5).toFixed(2);
+      h.style.animationDuration = (6 + Math.random()*5).toFixed(2) + 's';
+      hearts.appendChild(h);
+      setTimeout(()=> h.remove(), 11000);
+    }
+    setInterval(spawnHeart, 500);
+
+    // Auto-scroll suave durante a digitação
+    const observer = new MutationObserver(()=>{
+      const rect = document.body.getBoundingClientRect();
+      const bottom = window.innerHeight - rect.bottom;
+      if(bottom < 120) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    });
+    observer.observe($code, { childList:true, characterData:true, subtree:true });
+
+    // Início opcional automático (com pequeno delay)
+    setTimeout(()=>{ /* startTyping(); */ }, 800);
+  </script>
+</body>
+</html>
+
